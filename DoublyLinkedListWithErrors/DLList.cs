@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace DoublyLinkedListWithErrors
 {
-   public class DLList
+    public class DLList
     {
         public DLLNode head; // pointer to the head of the list
         public DLLNode tail; // pointer to the tail of the list
-       public DLList() { head = null;  tail = null; } // constructor
+        public DLList() { head = null; tail = null; } // constructor
         /*-------------------------------------------------------------------
         * The methods below includes several errors. Your  task is to write
         * unit test to discover these errors. During delivery the tutor may
@@ -18,41 +18,63 @@ namespace DoublyLinkedListWithErrors
         */
         public void addToTail(DLLNode p)
         {
-
-            if (head == null)
+            if (p == null) return;
+            p.next = null;
+            if (this.head == null)//if empty list
             {
-                head = p;
-                tail = p;
+                this.head = p;
+                this.tail = p;
             }
             else
             {
+                p.previous = this.tail;
+                this.tail.next = p;
+                this.tail = p;
+
+            }
+            /*
+             * p.previous = tail;
                 tail.next = p;
                 tail = p;
-                p.previous = tail;
-            }
+            test case 17
+
+             */
         } // end of addToTail
 
         public void addToHead(DLLNode p)
         {
-            if (head == null)
+            if (p == null) return;
+            p.previous = null;
+            if (this.head == null)
             {
-                head = p;
-                tail = p;
+                this.head = p;
+                this.tail = p;
             }
             else
             {
                 p.next = this.head;
                 this.head.previous = p;
-                head = p;
+                this.head = p;
             }
         } // end of addToHead
 
-        public void removHead()
+        public void removHead()//needs to be removeHead(). Original is removHead
         {
             if (this.head == null) return;
-            this.head = this.head.next;
-            this.head.previous = null;
+            if (this.head == this.tail)
+            {
+                this.head = null;
+                this.tail = null;
+                return;
+            }
+            this.head = this.head.next;//move head node to next
+            this.head.previous = null;//remove reference to old head
         } // removeHead
+        /* test 5
+         * if (this.head != null)
+             this.head.previous = null;  line 60 should be replaced with this
+        if its an emty list then line 60 will thorw a null pointer reference
+         */
 
         public void removeTail()
         {
@@ -63,45 +85,71 @@ namespace DoublyLinkedListWithErrors
                 this.tail = null;
                 return;
             }
+            this.tail = this.tail.previous;
+            this.tail.next = null;
         } // remove tail
-
+        /*
+         * tail = tail.previous;     // More than one node in the list..    this.tail = this.tail.prev; // Move tail pointer to the previous node..    this.tail.next = null; // Set the new tail's next pointer to null
+            tail.next = null; should be added at line 77 
+            doesnt acually remove the tail.
+        test 4 and 14
+         */
         /*-------------------------------------------------
          * Return null if the string does not exist.
          * ----------------------------------------------*/
         public DLLNode search(int num)
         {
-            DLLNode p = head;
+            DLLNode p = this.head;
             while (p != null)
             {
+                if (p.num == num)
+                    return p;
                 p = p.next;
-                if (p.num == num) break;
             }
-            return (p);
+            return (null);
         } // end of search (return pionter to the node);
+        /*
+         * skips first node without checking it
+         * swap line 93 and 94
+         * if (p.num == num) return p;
+                p = p.next;
+         test 7 and 8
+         */
 
         public void removeNode(DLLNode p)
         { // removing the node p.
-
+            if (p == null) return;
             if (p.next == null)
             {
                 this.tail = this.tail.previous;
                 this.tail.next = null;
-                p.previous = null;
-                return;
+                p.previous = null;//cut all links
+                return;//since void statement no need for return
             }
-            if (p.previous == null)
+            else if (p.previous == null)
             {
-                this.head = this.head.next;
-                p.next = null;
+                this.head = p.next;
                 this.head.previous = null;
-                return;
+                return;//since void statement no need for return
             }
-            p.next.previous = p.previous;
-            p.previous.next = p.next;
-            p.next = null;
-            p.previous = null;
-            return;
+            else
+            {
+                p.previous.next = p.next;
+                p.next.previous = p.previous;
+            }
+
+            return;//since void statement no need for return
         } // end of remove a node
+        /*
+         * If tail.previous is null, this.tail.next = null will crash. test 13
+         * line 112 should be
+         * if (this.tail != null)
+                this.tail.next = null;
+
+         If this.head.next == null, setting this.head.previous = null will cause a crash.
+        if (this.head != null) line 120
+            this.head.previous = null;
+         */
 
         public int total()
         {
@@ -110,9 +158,12 @@ namespace DoublyLinkedListWithErrors
             while (p != null)
             {
                 tot += p.num;
-                p = p.next.next;
+                p = p.next; //should be p.next  current one is skipping an element
             }
             return (tot);
         } // end of total
+        /*
+         * p.next.next should be p.next test 16
+         */
     } // end of DLList class
 }
